@@ -97,12 +97,12 @@ class TransformKeyframeAnimation {
       }
     }
 
-    // if (_rotation != null) {
-    //   final rotation = _rotation.value;
-    //   if (rotation != 0) {
-    //     _matrix.rotateZ(rotation * pi / 180.0);
-    //   }
-    // }
+    if (_rotation != null) {
+      final rotation = _rotation.value;
+      if (rotation != 0) {
+        _matrix.rotateZ(rotation * pi / 180.0);
+      }
+    }
 
     if (_skew != null) {
       final mCos =
