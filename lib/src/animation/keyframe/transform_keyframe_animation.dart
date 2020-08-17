@@ -90,19 +90,19 @@ class TransformKeyframeAnimation {
   Matrix4 getMatrix() {
     _matrix.reset();
 
-    if (_position != null) {
-      final position = _position.value;
-      if (position.dx != 0 || position.dy != 0) {
-        _matrix.translate(position.dx, position.dy);
-      }
-    }
-
-    // if (_rotation != null) {
-    //   final rotation = _rotation.value;
-    //   if (rotation != 0) {
-    //     _matrix.rotateZ(rotation * pi / 180.0);
+    // if (_position != null) {
+    //   final position = _position.value;
+    //   if (position.dx != 0 || position.dy != 0) {
+    //     _matrix.translate(position.dx, position.dy);
     //   }
     // }
+
+    if (_rotation != null) {
+      final rotation = _rotation.value;
+      if (rotation != 0) {
+        _matrix.rotateZ(rotation * pi / 180.0);
+      }
+    }
 
     if (_skew != null) {
       final mCos =
