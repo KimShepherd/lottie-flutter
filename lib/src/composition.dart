@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart' as p;
+import 'frame_rate.dart';
 import 'logger.dart';
 import 'lottie_image_asset.dart';
 import 'model/font.dart';
@@ -57,7 +58,6 @@ class LottieComposition {
       bytes = jsonFile.content as Uint8List;
     }
 
-    //TODO(xha): try to decode using the "compute" function to release the UI thread?
     var composition = LottieCompositionParser.parse(
         LottieComposition._(name), JsonReader.fromBytes(bytes));
 
@@ -134,8 +134,10 @@ class LottieComposition {
   Rectangle<int> get bounds => _bounds;
 
   Duration get duration {
-    return Duration(milliseconds: (durationFrames / _frameRate * 1000).round());
+    return Duration(milliseconds: (seconds * 1000).round());
   }
+
+  double get seconds => durationFrames / _frameRate;
 
   double get startFrame => _startFrame;
 
@@ -175,6 +177,24 @@ class LottieComposition {
 
   double get durationFrames {
     return _endFrame - _startFrame;
+  }
+
+  /// Returns a "rounded" progress value according to the frameRate
+  double roundProgress(double progress, {@required FrameRate frameRate}) {
+    num fps;
+    if (frameRate == FrameRate.max) {
+      return progress;
+    } else if (frameRate == FrameRate.composition) {
+      fps = this.frameRate;
+    }
+    fps ??= frameRate.framesPerSecond;
+
+    var totalFrameCount = seconds * fps;
+    var frameIndex = (totalFrameCount * progress).toInt();
+    var roundedProgress = frameIndex / totalFrameCount;
+    assert(roundedProgress >= 0 && roundedProgress <= 1,
+        'Progress is $roundedProgress');
+    return roundedProgress;
   }
 
   @override

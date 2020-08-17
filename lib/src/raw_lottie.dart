@@ -1,6 +1,7 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import '../lottie.dart';
+import 'frame_rate.dart';
 import 'lottie_drawable.dart';
 import 'render_lottie.dart';
 
@@ -13,7 +14,9 @@ class RawLottie extends LeafRenderObjectWidget {
     Key key,
     this.composition,
     this.delegates,
+    this.options,
     double progress,
+    this.frameRate,
     this.width,
     this.height,
     this.fit,
@@ -28,8 +31,15 @@ class RawLottie extends LeafRenderObjectWidget {
   /// Allows to modify the Lottie animation at runtime
   final LottieDelegates delegates;
 
+  final LottieOptions options;
+
   /// The progress of the Lottie animation (between 0.0 and 1.0).
   final double progress;
+
+  /// The number of frames per second to render.
+  /// Use `FrameRate.composition` to use the original frame rate of the Lottie composition (default)
+  /// Use `FrameRate.max` to advance the animation progression at every frame.
+  final FrameRate frameRate;
 
   /// If non-null, require the Lottie composition to have this width.
   ///
@@ -71,7 +81,9 @@ class RawLottie extends LeafRenderObjectWidget {
     return RenderLottie(
       composition: composition,
       delegates: delegates,
+      enableMergePaths: options?.enableMergePaths,
       progress: progress,
+      frameRate: frameRate,
       width: width,
       height: height,
       fit: fit,
@@ -82,7 +94,11 @@ class RawLottie extends LeafRenderObjectWidget {
   @override
   void updateRenderObject(BuildContext context, RenderLottie renderObject) {
     renderObject
-      ..setComposition(composition, progress: progress, delegates: delegates)
+      ..setComposition(composition,
+          progress: progress,
+          frameRate: frameRate,
+          delegates: delegates,
+          enableMergePaths: options?.enableMergePaths)
       ..width = width
       ..height = height
       ..alignment = alignment

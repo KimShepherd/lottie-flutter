@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import '../lottie.dart';
+import 'frame_rate.dart';
 import 'lottie.dart';
 import 'providers/asset_provider.dart';
 import 'providers/file_provider.dart';
@@ -36,16 +36,19 @@ class LottieBuilder extends StatefulWidget {
     Key key,
     @required this.lottie,
     this.controller,
+    this.frameRate,
     this.animate,
     this.reverse,
     this.repeat,
     this.delegates,
+    this.options,
     this.onLoaded,
     this.frameBuilder,
     this.width,
     this.height,
     this.fit,
     this.alignment,
+    this.addRepaintBoundary,
   })  : assert(lottie != null),
         super(key: key);
 
@@ -54,10 +57,12 @@ class LottieBuilder extends StatefulWidget {
     String src, {
     Map<String, String> headers,
     this.controller,
+    this.frameRate,
     this.animate,
     this.reverse,
     this.repeat,
     this.delegates,
+    this.options,
     LottieImageProviderFactory imageProviderFactory,
     this.onLoaded,
     Key key,
@@ -66,6 +71,7 @@ class LottieBuilder extends StatefulWidget {
     this.height,
     this.fit,
     this.alignment,
+    this.addRepaintBoundary,
   })  : lottie = NetworkLottie(src,
             headers: headers, imageProviderFactory: imageProviderFactory),
         super(key: key);
@@ -81,12 +87,14 @@ class LottieBuilder extends StatefulWidget {
   /// `android.permission.READ_EXTERNAL_STORAGE` permission.
   ///
   LottieBuilder.file(
-    File file, {
+    Object /*io.File|html.File*/ file, {
     this.controller,
+    this.frameRate,
     this.animate,
     this.reverse,
     this.repeat,
     this.delegates,
+    this.options,
     LottieImageProviderFactory imageProviderFactory,
     this.onLoaded,
     Key key,
@@ -95,6 +103,7 @@ class LottieBuilder extends StatefulWidget {
     this.height,
     this.fit,
     this.alignment,
+    this.addRepaintBoundary,
   })  : lottie = FileLottie(file, imageProviderFactory: imageProviderFactory),
         super(key: key);
 
@@ -102,10 +111,12 @@ class LottieBuilder extends StatefulWidget {
   LottieBuilder.asset(
     String name, {
     this.controller,
+    this.frameRate,
     this.animate,
     this.reverse,
     this.repeat,
     this.delegates,
+    this.options,
     LottieImageProviderFactory imageProviderFactory,
     this.onLoaded,
     Key key,
@@ -116,6 +127,7 @@ class LottieBuilder extends StatefulWidget {
     this.fit,
     this.alignment,
     String package,
+    this.addRepaintBoundary,
   })  : lottie = AssetLottie(name,
             bundle: bundle,
             package: package,
@@ -126,10 +138,12 @@ class LottieBuilder extends StatefulWidget {
   LottieBuilder.memory(
     Uint8List bytes, {
     this.controller,
+    this.frameRate,
     this.animate,
     this.reverse,
     this.repeat,
     this.delegates,
+    this.options,
     LottieImageProviderFactory imageProviderFactory,
     this.onLoaded,
     Key key,
@@ -138,6 +152,7 @@ class LottieBuilder extends StatefulWidget {
     this.height,
     this.fit,
     this.alignment,
+    this.addRepaintBoundary,
   })  : lottie =
             MemoryLottie(bytes, imageProviderFactory: imageProviderFactory),
         super(key: key);
@@ -155,6 +170,11 @@ class LottieBuilder extends StatefulWidget {
   /// The animated value will be mapped to the `progress` property of the
   /// Lottie animation.
   final Animation<double> controller;
+
+  /// The number of frames per second to render.
+  /// Use `FrameRate.composition` to use the original frame rate of the Lottie composition (default)
+  /// Use `FrameRate.max` to advance the animation progression at every frame.
+  final FrameRate frameRate;
 
   /// If no controller is specified, this value indicate whether or not the
   /// Lottie animation should be played automatically (default to true).
@@ -179,6 +199,10 @@ class LottieBuilder extends StatefulWidget {
   /// - A text style factory to map between a font family specified in the animation
   ///   and the font family in your assets.
   final LottieDelegates delegates;
+
+  /// Some options to enable/disable some feature of Lottie
+  /// - enableMergePaths: Enable merge path support
+  final LottieOptions options;
 
   /// A builder function responsible for creating the widget that represents
   /// this lottie animation.
@@ -312,6 +336,13 @@ class LottieBuilder extends StatefulWidget {
   ///    relative to text direction.
   final AlignmentGeometry alignment;
 
+  /// Indicate to automatically add a `RepaintBoundary` widget around the animation.
+  /// This allows to optimize the app performance by isolating the animation in its
+  /// own `Layer`.
+  ///
+  /// This property is `true` by default.
+  final bool addRepaintBoundary;
+
   @override
   _LottieBuilderState createState() => _LottieBuilderState();
 
@@ -375,14 +406,17 @@ class _LottieBuilderState extends State<LottieBuilder> {
         Widget result = Lottie(
           composition: composition,
           controller: widget.controller,
+          frameRate: widget.frameRate,
           animate: widget.animate,
           reverse: widget.reverse,
           repeat: widget.repeat,
           delegates: widget.delegates,
+          options: widget.options,
           width: widget.width,
           height: widget.height,
           fit: widget.fit,
           alignment: widget.alignment,
+          addRepaintBoundary: widget.addRepaintBoundary,
         );
 
         if (widget.frameBuilder != null) {
