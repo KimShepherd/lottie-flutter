@@ -1,6 +1,7 @@
 import 'dart:math' hide Point, Rectangle;
 import 'dart:ui';
 import 'package:vector_math/vector_math_64.dart';
+import '../../logger.dart';
 import '../../lottie_property.dart';
 import '../../model/animatable/animatable_transform.dart';
 import '../../model/layer/base_layer.dart';
@@ -100,6 +101,7 @@ class TransformKeyframeAnimation {
     if (_rotation != null) {
       final rotation = _rotation.value;
       if (rotation != 0) {
+        logger.info('Rotating by $_rotation');
         _matrix.rotateZ(rotation * pi / 180.0);
       }
     }
