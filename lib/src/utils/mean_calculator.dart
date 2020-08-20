@@ -1,5 +1,5 @@
 class MeanCalculator {
-  double _sum;
+  double _sum = 0.0;
   int _n;
 
   double get mean => _n == 0 ? 0 : _sum / _n;
